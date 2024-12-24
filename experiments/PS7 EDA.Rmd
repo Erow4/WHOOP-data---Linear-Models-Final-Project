@@ -1,0 +1,213 @@
+---
+title: "PS7 EDA"
+author: "STAT 139 (Fall 2024) Teaching Team"
+date: "Due Friday, November 15, 2024 at 11:59pm"
+output: pdf_document
+urlcolor: blue
+---
+
+Each important continuous variable in your dataset reports:
+
+- The number of non-missing observations
+
+- The  number of missing observations
+
+- A measure(s) of the central tendency (i.e., mean, media)
+
+- A measure(s) of variability (i.e, sd, IQR)
+
+and for each important categorical variable in your dataset reports:
+
+- The levels of the variable
+
+- For each level:
+  
+  - The number of non-missing observations
+  
+  - The number of missing observations
+
+```{r}
+library(dplyr)
+library(knitr)
+library(tidyr)
+
+cycles<-read.csv("data/physiological_cycles.csv") 
+sleep <- read.csv("data/sleeps.csv")
+workouts <- read.csv("data/workouts.csv")
+```
+
+# 1 - Data Cleaning
+
+## 1.1 - Clean Physio
+
+```{r}
+str(cycles)
+
+
+# Convert date-time columns to POSIXct format
+cycles$Cycle.start.time <- as.POSIXct(cycles$Cycle.start.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+cycles$Cycle.end.time <- as.POSIXct(cycles$Cycle.end.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+cycles$Sleep.onset <- as.POSIXct(cycles$Sleep.onset, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+cycles$Wake.onset <- as.POSIXct(cycles$Wake.onset, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Calculate duration in hours
+cycles$Cycle.duration <- difftime(cycles$Cycle.end.time, cycles$Cycle.start.time, units = "hours")
+cycles$Sleep.duration <- difftime(cycles$Wake.onset, cycles$Sleep.onset, units = "hours")
+
+# Convert duration to numeric
+cycles$Cycle.duration <- as.numeric(cycles$Cycle.duration)
+cycles$Sleep.duration <- as.numeric(cycles$Sleep.duration)
+
+# Summary of continuous variables
+cycles_continuous_summary <- cycles %>%
+  select_if(is.numeric) %>%
+  summarise_all(list(
+    non_missing = ~sum(!is.na(.)),
+    missing = ~sum(is.na(.)),
+    mean = ~mean(., na.rm = TRUE),
+    median = ~median(., na.rm = TRUE),
+    sd = ~sd(., na.rm = TRUE),
+    IQR = ~IQR(., na.rm = TRUE)
+  ))
+
+cycles_continuous_summary_long <- cycles_continuous_summary %>%
+  pivot_longer(cols = everything(),
+               names_to = c("Variable", "Metric"),
+               names_sep = "_",
+               values_to = "Value") %>%
+  pivot_wider(names_from = "Metric", values_from = "Value")
+
+# Display the summary
+kable(cycles_continuous_summary_long)
+```
+
+## 1.2 - Clean Sleep
+
+```{r}
+str(sleep)
+
+# Convert date-time columns to POSIXct format
+sleep$Cycle.start.time <- as.POSIXct(sleep$Cycle.start.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+sleep$Cycle.end.time <- as.POSIXct(sleep$Cycle.end.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+sleep$Sleep.onset <- as.POSIXct(sleep$Sleep.onset, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+sleep$Wake.onset <- as.POSIXct(sleep$Wake.onset, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Calculate duration in hours
+sleep$Cycle.duration <- difftime(sleep$Cycle.end.time, sleep$Cycle.start.time, units = "hours")
+sleep$Sleep.duration <- difftime(sleep$Wake.onset, sleep$Sleep.onset, units = "hours")
+
+# Convert duration to numeric
+sleep$Cycle.duration <- as.numeric(sleep$Cycle.duration)
+sleep$Sleep.duration <- as.numeric(sleep$Sleep.duration)
+
+# Summary of continuous variables
+sleep_continuous_summary <- sleep %>%
+  select_if(is.numeric) %>%
+  summarise_all(list(
+    non_missing = ~sum(!is.na(.)),
+    missing = ~sum(is.na(.)),
+    mean = ~mean(., na.rm = TRUE),
+    median = ~median(., na.rm = TRUE),
+    sd = ~sd(., na.rm = TRUE),
+    IQR = ~IQR(., na.rm = TRUE)
+  ))
+
+# Reshape the summary table to a longer format and then back to wide format for readability
+sleep_continuous_summary_long <- sleep_continuous_summary %>%
+  pivot_longer(cols = everything(),
+               names_to = c("Variable", "Metric"),
+               names_sep = "_",
+               values_to = "Value") %>%
+  pivot_wider(names_from = "Metric", values_from = "Value")
+
+# Display the summary in a readable table format
+kable(sleep_continuous_summary_long)
+
+
+# Summarize the 'Nap' categorical variable
+sleep_categorical_summary <- sleep %>%
+  group_by(Nap) %>%
+  summarise(
+    non_missing = sum(!is.na(Nap)),
+    missing = sum(is.na(Nap))
+  )
+
+# Display the summary
+print(sleep_categorical_summary)
+
+
+```
+
+
+## 1.3 - Clean Workouts
+
+```{r}
+str(workouts)
+
+# Convert date-time columns to POSIXct format
+workouts$Cycle.start.time <- as.POSIXct(workouts$Cycle.start.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+workouts$Cycle.end.time <- as.POSIXct(workouts$Cycle.end.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+workouts$Workout.start.time <- as.POSIXct(workouts$Workout.start.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+workouts$Workout.end.time <- as.POSIXct(workouts$Workout.end.time, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+# Calculate duration in hours
+workouts$Cycle.duration <- difftime(workouts$Cycle.end.time, workouts$Cycle.start.time, units = "hours")
+workouts$Workout.duration <- difftime(workouts$Workout.end.time, workouts$Workout.start.time, units = "hours")
+
+# Convert duration to numeric
+workouts$Cycle.duration <- as.numeric(workouts$Cycle.duration)
+workouts$Workout.duration <- as.numeric(workouts$Workout.duration)
+
+# Summary of continuous variables
+workouts_continuous_summary <- workouts %>%
+  select_if(is.numeric) %>%
+  summarise_all(list(
+    non_missing = ~sum(!is.na(.)),
+    missing = ~sum(is.na(.)),
+    mean = ~mean(., na.rm = TRUE),
+    median = ~median(., na.rm = TRUE),
+    sd = ~sd(., na.rm = TRUE),
+    IQR = ~IQR(., na.rm = TRUE)
+  ))
+
+# Reshape the summary table to a longer format and then back to wide format for readability
+workouts_continuous_summary_long <- workouts_continuous_summary %>%
+  pivot_longer(cols = everything(),
+               names_to = c("Variable", "Metric"),
+               names_sep = "_",
+               values_to = "Value") %>%
+  pivot_wider(names_from = "Metric", values_from = "Value")
+
+# Display the summary in a readable table format
+kable(workouts_continuous_summary_long)
+
+# Print the table in a readable format
+kable(workouts_continuous_summary_long)
+
+
+# Summarize the 'GPS.enabled' categorical variable
+gps_summary <- workouts %>%
+  group_by(GPS.enabled) %>%
+  summarise(
+    non_missing = sum(!is.na(GPS.enabled)),
+    missing = sum(is.na(GPS.enabled))
+  )
+
+# Summarize the 'Activity.name' categorical variable
+activity_summary <- workouts %>%
+  group_by(Activity.name) %>%
+  summarise(
+    non_missing = sum(!is.na(Activity.name)),
+    missing = sum(is.na(Activity.name)),
+    count = n()
+  )
+
+# Display the summaries
+print(gps_summary)
+print(activity_summary)
+
+
+```
+
+# 2 - Jonas EDA
+
