@@ -10,7 +10,7 @@ Data was collected from WHOOP exports and cleaned into a unified time-series dat
 - **Sleep metrics**: Deep, light, REM, and awake duration; nap count & duration; sleep need & consistency.  
 - **Physiological metrics**: Respiratory rate, recovery, resting HR.  
 
-Final dataset structure: one row per day, capturing both workout activity and sleep outcomes:contentReference[oaicite:0]{index=0}.  
+Final dataset structure: one row per day, capturing both workout activity and sleep outcomes.  
 
 ## ⚙️ Methods  
 We applied both **inference** and **prediction** models:  
@@ -20,7 +20,7 @@ We applied both **inference** and **prediction** models:
 
 ### Key Findings  
 - Light sleep duration, awake duration, and sleep need were strong predictors of deep sleep ratio.  
-- The best predictive models achieved **~65% accuracy**, with Gradient Boosted Trees and SVM performing best:contentReference[oaicite:1]{index=1}.  
+- The best predictive models achieved **~65% accuracy**, with Gradient Boosted Trees and SVM performing best.  
 - Naps and interaction effects (e.g., energy burned × heart rate) showed predictive value.  
 
 ## 📊 Results  
