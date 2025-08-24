@@ -2,7 +2,7 @@
 *Stat139: Linear Models, Final Project*
 
 ## 📌 Overview  
-This project investigates the relationship between **exercise intensity**, **sleep quality**, and **recovery patterns** using WHOOP data. By combining workout and sleep data, we explore whether physical activity during the day can predict the ratio of **deep (SWS) sleep** to total sleep, and whether exercise metrics can help classify days into *good* vs. *poor* sleep quality. Below is a summary of our findings. Please see the .pdf in this repository for the complete project submission.
+This project investigates the relationship between **exercise intensity**, **sleep quality**, and **recovery patterns** using WHOOP data. By combining workout and sleep data, we explore whether physical activity during the day can predict the ratio of **deep (SWS) sleep** to total sleep, and whether exercise metrics can help classify days into *good* vs. *poor* sleep quality. Below is a summary of our findings. Please see the .pdf in this repository for our final submission.
 
 ## 🗂 Dataset  
 Data was collected from WHOOP exports and cleaned into a unified time-series dataset with **33 variables**, including:  
